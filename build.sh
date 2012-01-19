@@ -1,18 +1,9 @@
 #!/bin/bash
 
 # script taken from iTransmission project
-# (https://github.com/ccp0101/iTransmission)
+# (https://github.com/ccp0101/iTransmission/blob/master/make_depend/build.sh)
  
-#########################
-ARCH="armv7"
-SDK_VERSION="5.0"
-PARALLEL_NUM=1
-#########################
-
-CURL_VERSION=7.21.5
-LIBEVENT_VERSION="2.0.15-stable"
-OPENSSL_VERSION=1.0.0e
-TRANSMISSION_VERSION=2.41
+. configuration
 
 export BUILD_DIR="$PWD/out/${ARCH}"
 export BUILD_DIR_TRANS="$BUILD_DIR/transmission"
