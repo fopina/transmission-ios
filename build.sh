@@ -15,6 +15,8 @@ OPENSSL_VERSION=1.0.0e
 TRANSMISSION_VERSION=2.41
 
 export BUILD_DIR="$PWD/out/${ARCH}"
+export BUILD_DIR_TRANS="$BUILD_DIR/transmission"
+export TEMP_DIR="$PWD/temp"
 
 if [ ${ARCH} = "i386" ]
 	then
@@ -30,6 +32,8 @@ else
 	exit
 fi
 
+mkdir -p ${TEMP_DIR}
+
 function do_export {
 	export DEVROOT="/Developer/Platforms/${PLATFORM}.platform/Developer"
 	export SDKROOT="/Developer/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}$SDK_VERSION.sdk"
@@ -38,17 +42,14 @@ function do_export {
 	export CXX="${DEVROOT}/usr/bin/g++ -arch ${ARCH}"
 	unset AR
 	unset AS
-	# export AR=${DEVROOT}/usr/bin/ar
-	# export AS=${DEVROOT}/usr/bin/as
 	export NM=${DEVROOT}/usr/bin/nm
 	export CXXCPP=/usr/bin/cpp
 	export RANLIB=${DEVROOT}/usr/bin/ranlib
 	export CC="${DEVROOT}/usr/bin/gcc -arch ${ARCH}"
-	export CFLAGS="-I${BUILD_DIR}/include -I${SDKROOT}/usr/include -pipe -no-cpp-precomp -isysroot ${SDKROOT}"
+	export CFLAGS="-I${BUILD_DIR}/include -I${BUILD_DIR_TRANS}/include -I${SDKROOT}/usr/include -pipe -no-cpp-precomp -isysroot ${SDKROOT}"
 	export CXXFLAGS="${CFLAGS}"
-	export LDFLAGS=" -L${BUILD_DIR}/lib -pipe -no-cpp-precomp -L${SDKROOT}/usr/lib -L${DEVROOT}/usr/lib -isysroot ${SDKROOT} -Wl,-syslibroot $SDKROOT"
-	export PREFIX_DIR="${BUILD_DIR}"
-	export COMMON_OPTIONS="--prefix=${PREFIX_DIR} --disable-shared --enable-static --disable-ipv6 --disable-manual "
+	export LDFLAGS=" -L${BUILD_DIR}/lib -L${BUILD_DIR_TRANS}/lib -pipe -no-cpp-precomp -L${SDKROOT}/usr/lib -L${DEVROOT}/usr/lib -isysroot ${SDKROOT} -Wl,-syslibroot $SDKROOT"
+	export COMMON_OPTIONS="--disable-shared --enable-static --disable-ipv6 --disable-manual "
 	
 	if [ ${PLATFORM} = "iPhoneOS" ]
 		then
@@ -58,16 +59,12 @@ function do_export {
 		COMMON_OPTIONS="--host i386-apple-darwin ${COMMON_OPTIONS}"
 	fi	
 
-	if ! echo "$PATH"|grep -q "${BUILD_DIR}/tools/bin"
-	then
-		export PATH="${BUILD_DIR}/tools/bin:${PATH}"
-	fi
-	
 	export PKG_CONFIG_PATH="${SDKROOT}/usr/lib/pkgconfig:${BUILD_DIR}/lib/pkgconfig"
 }
 
 function do_openssl {
 	export PACKAGE_NAME="openssl-${OPENSSL_VERSION}"
+	pushd ${TEMP_DIR}
 	if [ ! -e "${PACKAGE_NAME}.tar.gz" ]
 	then
 	  /usr/bin/curl -O -L "http://www.openssl.org/source/${PACKAGE_NAME}.tar.gz"
@@ -101,11 +98,12 @@ function do_openssl {
 	rm -rf ${BUILD_DIR}/share/man
 	
 	popd
-	
+	popd
 }
 
 function do_curl {
 	export PACKAGE_NAME="curl-${CURL_VERSION}"
+	pushd ${TEMP_DIR}
 	if [ ! -e "${PACKAGE_NAME}.tar.gz" ]
 	then
 	  /usr/bin/curl -O -L "http://www.execve.net/curl/${PACKAGE_NAME}.tar.gz"
@@ -124,10 +122,12 @@ function do_curl {
 	make install	
 	
 	popd
+	popd
 }
 
 function do_libevent {
 	export PACKAGE_NAME="libevent-${LIBEVENT_VERSION}"
+	pushd ${TEMP_DIR}
 	if [ ! -e "${PACKAGE_NAME}.tar.gz" ]
 	then
 	  /usr/bin/curl -O -L "https://github.com/downloads/libevent/libevent/${PACKAGE_NAME}.tar.gz"
@@ -146,10 +146,12 @@ function do_libevent {
 	make install
 	
 	popd
+	popd
 }
 
 function do_transmission {	
 	export PACKAGE_NAME="transmission-${TRANSMISSION_VERSION}"
+	pushd ${TEMP_DIR}
 	if [ ! -e "${PACKAGE_NAME}.tar.bz2" ]
 	then
 	  /usr/bin/curl -O -L "http://transmission.cachefly.net/${PACKAGE_NAME}.tar.bz2"
@@ -162,22 +164,23 @@ function do_transmission {
 	
 	do_export
 	
-	./configure --prefix="${BUILD_DIR}" ${COMMON_OPTIONS} --enable-largefile --enable-utp --disable-nls --enable-lightweight --enable-cli --enable-daemon --disable-mac --disable-gtk --with-kqueue --enable-debug
+	./configure --prefix="${BUILD_DIR_TRANS}" ${COMMON_OPTIONS} --enable-largefile --enable-utp --disable-nls --enable-lightweight --enable-cli --enable-daemon --disable-mac --disable-gtk --with-kqueue --enable-debug
 	
 	if [ ! -e "${SDKROOT}/usr/include/net/route.h" ]
 		then
-		mkdir -p ${BUILD_DIR}/include/net
-		cp "/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator${SDK_VERSION}.sdk/usr/include/net/route.h" "${BUILD_DIR}/include/net/route.h"
+		mkdir -p ${BUILD_DIR_TRANS}/include/net
+		cp "/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator${SDK_VERSION}.sdk/usr/include/net/route.h" "${BUILD_DIR_TRANS}/include/net/route.h"
 	fi
 	
 	make -j ${PARALLEL_NUM}
 	make install
 	
 	# Default installation doesn't copy library and header files
-	mkdir -p ${BUILD_DIR}/include/libtransmission
-	find ./libtransmission -name "*.h" -exec cp "{}" ${BUILD_DIR}/include/libtransmission \;
-	find . -name "*.a" -exec cp "{}" ${BUILD_DIR}/lib \;
+	mkdir -p ${BUILD_DIR_TRANS}/include/libtransmission
+	find ./libtransmission -name "*.h" -exec cp "{}" ${BUILD_DIR_TRANS}/include/libtransmission \;
+	find . -name "*.a" -exec cp "{}" ${BUILD_DIR_TRANS}/lib \;
 	
+	popd
 	popd
 }
 
