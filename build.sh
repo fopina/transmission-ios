@@ -185,7 +185,7 @@ function do_transmission {
 	popd
 }
 
-#do_openssl
-#do_curl
-#do_libevent
+do_openssl
+do_curl
+do_libevent
 do_transmission
