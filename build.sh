@@ -9,10 +9,8 @@ SDK_VERSION="5.0"
 PARALLEL_NUM=1
 #########################
 
-PKG_CONFIG_VERSION=0.25   # DO NOT USE 0.26 which has broken dependency on glib
 CURL_VERSION=7.21.5
 LIBEVENT_VERSION="2.0.15-stable"
-ZLIB_VERSION=1.2.5
 OPENSSL_VERSION=1.0.0e
 TRANSMISSION_VERSION=2.41
 
@@ -68,49 +66,11 @@ function do_export {
 	export PKG_CONFIG_PATH="${SDKROOT}/usr/lib/pkgconfig:${BUILD_DIR}/lib/pkgconfig"
 }
 
-function do_unset {
-	unset DEVROOT
-	unset SDKROOT
-	unset LD
-	unset CPP
-	unset CXX
-	unset AR
-	unset AS
-	unset NM
-	unset CXXCPP
-	unset RANLIB
-	unset CC
-	unset CFLAGS
-	unset LDFLAGS
-	unset PREFIX_DIR
-	unset COMMON_OPTIONS
-	export PATH=$(echo $PATH | sed -e "s;:\?${BUILD_DIR}/tools/bin;;" -e "s;${BUILD_DIR}/tools/bin:\?;;")
-}
-
-function do_pkg_config {
-	if [ ! -e "pkg-config-${PKG_CONFIG_VERSION}.tar.gz" ]
-	then
-	  /usr/bin/curl -O "http://pkg-config.freedesktop.org/releases/pkg-config-${PKG_CONFIG_VERSION}.tar.gz"
-	fi
-	
-	rm -rf "pkg-config-${PKG_CONFIG_VERSION}"
-	tar zxvf "pkg-config-${PKG_CONFIG_VERSION}.tar.gz"
-	
-	pushd "pkg-config-${PKG_CONFIG_VERSION}"
-	
-	do_unset
-	./configure --prefix="${BUILD_DIR}/tools" ${COMMON_OPTIONS}
-	make -j2
-	make install
-	
-	popd # "pkg-config-${PKG_CONFIG_VERSION}"
-}
-
 function do_openssl {
 	export PACKAGE_NAME="openssl-${OPENSSL_VERSION}"
 	if [ ! -e "${PACKAGE_NAME}.tar.gz" ]
 	then
-	  /usr/bin/curl -O "http://www.openssl.org/source/${PACKAGE_NAME}.tar.gz"
+	  /usr/bin/curl -O -L "http://www.openssl.org/source/${PACKAGE_NAME}.tar.gz"
 	fi
 	
 	rm -rf "${PACKAGE_NAME}"
@@ -144,40 +104,11 @@ function do_openssl {
 	
 }
 
-function do_zlib {
-	export PACKAGE_NAME="zlib-${ZLIB_VERSION}"
-	if [ ! -e "${PACKAGE_NAME}.tar.gz" ]
-	then
-#	  /usr/bin/curl -O "http://zlib.net/zlib-${ZLIB_VERSION}.tar.gz"	
-	  /usr/bin/curl -O "http://www.gknw.de/mirror/zlib/${PACKAGE_NAME}.tar.gz"
-	fi
-	
-	rm -rf "${PACKAGE_NAME}"
-	tar zxvf "${PACKAGE_NAME}.tar.gz"
-	
-	pushd ${PACKAGE_NAME}
-	
-	do_export
-	
-	./configure --prefix="${BUILD_DIR}" --static
-	
-	# Fix installation error
-	curl "http://static.ccp.li/zlib-Makefile-patch" | patch -p0
-	
-	make -j ${PARALLEL_NUM}
-	make install
-	
-	rm -rf ${BUILD_DIR}/share/man
-	
-	popd
-}
-
 function do_curl {
 	export PACKAGE_NAME="curl-${CURL_VERSION}"
 	if [ ! -e "${PACKAGE_NAME}.tar.gz" ]
 	then
-	  # /usr/bin/curl -O "http://curl.haxx.se/download/${PACKAGE_NAME}.tar.gz"
-	  /usr/bin/curl -O "http://www.execve.net/curl/${PACKAGE_NAME}.tar.gz"
+	  /usr/bin/curl -O -L "http://www.execve.net/curl/${PACKAGE_NAME}.tar.gz"
 	fi
 	
 	rm -rf "${PACKAGE_NAME}"
@@ -199,7 +130,7 @@ function do_libevent {
 	export PACKAGE_NAME="libevent-${LIBEVENT_VERSION}"
 	if [ ! -e "${PACKAGE_NAME}.tar.gz" ]
 	then
-	  /usr/bin/curl -O "https://github.com/downloads/libevent/libevent/${PACKAGE_NAME}.tar.gz"
+	  /usr/bin/curl -O -L "https://github.com/downloads/libevent/libevent/${PACKAGE_NAME}.tar.gz"
 	fi
 	
 	rm -rf "${PACKAGE_NAME}"
@@ -221,7 +152,7 @@ function do_transmission {
 	export PACKAGE_NAME="transmission-${TRANSMISSION_VERSION}"
 	if [ ! -e "${PACKAGE_NAME}.tar.bz2" ]
 	then
-	  /usr/bin/curl -O "http://transmission.cachefly.net/${PACKAGE_NAME}.tar.bz2"
+	  /usr/bin/curl -O -L "http://transmission.cachefly.net/${PACKAGE_NAME}.tar.bz2"
 	fi
 	
 	rm -rf "${PACKAGE_NAME}"
@@ -250,11 +181,7 @@ function do_transmission {
 	popd
 }
 
-# do_pkg_config
-# do_zlib
-# do_openssl
-# do_curl
-# do_libevent
+do_openssl
+do_curl
+do_libevent
 do_transmission
-
-# do_unset
