@@ -177,6 +177,7 @@ function do_transmission {
 	
 	# Default installation doesn't copy library and header files
 	mkdir -p ${BUILD_DIR_TRANS}/include/libtransmission
+	mkdir -p ${BUILD_DIR_TRANS}/lib
 	find ./libtransmission -name "*.h" -exec cp "{}" ${BUILD_DIR_TRANS}/include/libtransmission \;
 	find . -name "*.a" -exec cp "{}" ${BUILD_DIR_TRANS}/lib \;
 	
@@ -184,7 +185,7 @@ function do_transmission {
 	popd
 }
 
-do_openssl
-do_curl
-do_libevent
+#do_openssl
+#do_curl
+#do_libevent
 do_transmission
