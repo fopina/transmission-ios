@@ -1,0 +1,7 @@
+Package: transmission
+Section: network
+Priority: optional
+Architecture: iphoneos-arm
+Depends: openssl,curl
+Maintainer: Filipe Pina<fopina@fopina.co.cc>
+Description: Transmission cross-compiled to iOS (included: libtransmission, daemon and cli)
