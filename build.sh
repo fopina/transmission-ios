@@ -8,6 +8,7 @@
 export BUILD_DIR="$PWD/out/${ARCH}"
 export BUILD_DIR_TRANS="$BUILD_DIR/transmission"
 export TEMP_DIR="$PWD/temp"
+export PATCH_DIR="$PWD/patches"
 
 if [ ${ARCH} = "i386" ]
 	then
@@ -152,6 +153,11 @@ function do_transmission {
 	tar jxvf "${PACKAGE_NAME}.tar.bz2"
 	
 	pushd ${PACKAGE_NAME}
+	
+	#apply whitelist patch (to allow LAN clients by default)
+	pushd libtransmission
+	patch < ${PATCH_DIR}/rpc_lan_whitelist.patch
+	popd
 	
 	do_export
 	
