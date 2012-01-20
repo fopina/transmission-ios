@@ -139,12 +139,18 @@ function do_libevent {
 	  /usr/bin/curl -O -L "https://github.com/downloads/libevent/libevent/${PACKAGE_NAME}.tar.gz" || do_abort "$FUNCNAME: fetch failed "
 	fi
 	
-	rm -rf "${PACKAGE_NAME}"
-	tar zxvf "${PACKAGE_NAME}.tar.gz" || do_abort "$FUNCNAME: unpack failed "
+	if [[ -z $DONT_OVERWRITE ]]; then
+		rm -rf "${PACKAGE_NAME}"
+		tar zxvf "${PACKAGE_NAME}.tar.gz" || do_abort "$FUNCNAME: unpack failed "
+	fi
 	
 	pushd ${PACKAGE_NAME}
 	
 	do_export
+
+	if [[ ! -z $DONT_OVERWRITE ]]; then
+		make clean
+	fi
 	
 	./configure --prefix="${BUILD_DIR}" ${COMMON_OPTIONS} || do_abort "$FUNCNAME: configure failed "
 	
