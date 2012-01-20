@@ -69,17 +69,17 @@ function do_openssl {
 	pushd ${TEMP_DIR}
 	if [ ! -e "${PACKAGE_NAME}.tar.gz" ]
 	then
-	  /usr/bin/curl -O -L "http://www.openssl.org/source/${PACKAGE_NAME}.tar.gz"
+	  /usr/bin/curl -O -L "http://www.openssl.org/source/${PACKAGE_NAME}.tar.gz" || do_abort "$FUNCNAME: fetch failed "
 	fi
 	
 	rm -rf "${PACKAGE_NAME}"
-	tar zxvf "${PACKAGE_NAME}.tar.gz"
+	tar zxvf "${PACKAGE_NAME}.tar.gz" || do_abort "$FUNCNAME: unpack failed "
 	
 	pushd ${PACKAGE_NAME}
 	
 	do_export
 	
-	./configure BSD-generic32 --openssldir=${BUILD_DIR} 
+	./configure BSD-generic32 --openssldir=${BUILD_DIR} || do_abort "$FUNCNAME: configure failed "
 	
 	# Patch for iOS, taken from https://github.com/st3fan/ios-openssl/blame/master/build.sh
 	perl -i -pe "s|static volatile sig_atomic_t intr_signal|static volatile int intr_signal|" ./crypto/ui/ui_openssl.c
@@ -94,8 +94,8 @@ function do_openssl {
 		popd
 	fi
 	
-	make -j ${PARALLEL_NUM}
-	make install
+	make -j ${PARALLEL_NUM} || do_abort "$FUNCNAME: make failed "
+	make install || do_abort "$FUNCNAME: install failed "
 	
 	rm -rf ${BUILD_DIR}/share/man
 	
@@ -108,20 +108,20 @@ function do_curl {
 	pushd ${TEMP_DIR}
 	if [ ! -e "${PACKAGE_NAME}.tar.gz" ]
 	then
-	  /usr/bin/curl -O -L "http://www.execve.net/curl/${PACKAGE_NAME}.tar.gz"
+	  /usr/bin/curl -O -L "http://www.execve.net/curl/${PACKAGE_NAME}.tar.gz" || do_abort "$FUNCNAME: fetch failed "
 	fi
 	
 	rm -rf "${PACKAGE_NAME}"
-	tar zxvf "${PACKAGE_NAME}.tar.gz"
+	tar zxvf "${PACKAGE_NAME}.tar.gz" || do_abort "$FUNCNAME: unpack failed "
 	
 	pushd ${PACKAGE_NAME}
 	
 	do_export
 
-	./configure --prefix="${BUILD_DIR}" ${COMMON_OPTIONS} --with-random=/dev/urandom --with-ssl --with-zlib LDFLAGS="${LDFLAGS}"
+	./configure --prefix="${BUILD_DIR}" ${COMMON_OPTIONS} --with-random=/dev/urandom --with-ssl --with-zlib LDFLAGS="${LDFLAGS}" || do_abort "$FUNCNAME: configure failed "
 	
-	make -j ${PARALLEL_NUM}
-	make install	
+	make -j ${PARALLEL_NUM} || do_abort "$FUNCNAME: make failed "
+	make install || do_abort "$FUNCNAME: install failed "
 	
 	popd
 	popd
@@ -132,20 +132,20 @@ function do_libevent {
 	pushd ${TEMP_DIR}
 	if [ ! -e "${PACKAGE_NAME}.tar.gz" ]
 	then
-	  /usr/bin/curl -O -L "https://github.com/downloads/libevent/libevent/${PACKAGE_NAME}.tar.gz"
+	  /usr/bin/curl -O -L "https://github.com/downloads/libevent/libevent/${PACKAGE_NAME}.tar.gz" || do_abort "$FUNCNAME: fetch failed "
 	fi
 	
 	rm -rf "${PACKAGE_NAME}"
-	tar zxvf "${PACKAGE_NAME}.tar.gz"
+	tar zxvf "${PACKAGE_NAME}.tar.gz" || do_abort "$FUNCNAME: unpack failed "
 	
 	pushd ${PACKAGE_NAME}
 	
 	do_export
 	
-	./configure --prefix="${BUILD_DIR}" ${COMMON_OPTIONS}
+	./configure --prefix="${BUILD_DIR}" ${COMMON_OPTIONS} || do_abort "$FUNCNAME: configure failed "
 	
-	make -j ${PARALLEL_NUM}
-	make install
+	make -j ${PARALLEL_NUM} || do_abort "$FUNCNAME: make failed "
+	make install || do_abort "$FUNCNAME: install failed "
 	
 	popd
 	popd
@@ -156,12 +156,12 @@ function do_transmission {
 	pushd ${TEMP_DIR}
 	if [ ! -e "${PACKAGE_NAME}.tar.bz2" ]
 	then
-	  /usr/bin/curl -O -L "http://transmission.cachefly.net/${PACKAGE_NAME}.tar.bz2"
+	  /usr/bin/curl -O -L "http://transmission.cachefly.net/${PACKAGE_NAME}.tar.bz2" || do_abort "$FUNCNAME: fetch failed "
 	fi
 	
 	if [[ -z $DONT_OVERWRITE ]]; then
 		rm -rf "${PACKAGE_NAME}"
-		tar jxvf "${PACKAGE_NAME}.tar.bz2"
+		tar jxvf "${PACKAGE_NAME}.tar.bz2" || do_abort "$FUNCNAME: unpack failed "
 	fi
 	
 	pushd ${PACKAGE_NAME}
@@ -173,7 +173,7 @@ function do_transmission {
 	
 	do_export
 	
-	./configure --prefix="${BUILD_DIR_TRANS}" ${COMMON_OPTIONS} --enable-largefile --enable-utp --disable-nls --enable-lightweight --enable-cli --enable-daemon --disable-mac --disable-gtk --with-kqueue --enable-debug
+	./configure --prefix="${BUILD_DIR_TRANS}" ${COMMON_OPTIONS} --enable-largefile --enable-utp --disable-nls --enable-lightweight --enable-cli --enable-daemon --disable-mac --disable-gtk --with-kqueue --enable-debug || do_abort "$FUNCNAME: configure failed "
 	
 	if [ ! -e "${SDKROOT}/usr/include/net/route.h" ]
 		then
@@ -181,8 +181,8 @@ function do_transmission {
 		cp "/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator${SDK_VERSION}.sdk/usr/include/net/route.h" "${BUILD_DIR_TRANS}/include/net/route.h"
 	fi
 	
-	make -j ${PARALLEL_NUM}
-	make install
+	make -j ${PARALLEL_NUM} || do_abort "$FUNCNAME: make failed "
+	make install || do_abort "$FUNCNAME: install failed "
 	
 	# Default installation doesn't copy library and header files
 	mkdir -p ${BUILD_DIR_TRANS}/include/libtransmission
