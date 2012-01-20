@@ -19,6 +19,9 @@ elif [ ${ARCH} = "armv7" ]
 elif [ ${ARCH} = "armv6" ]
 	then
 	PLATFORM="iPhoneOS"
+elif [ ${ARCH} = "system" ]
+	then
+	PLATFORM="none"
 else
 	echo "invalid arch ${ARCH} specified"
 	exit
@@ -26,40 +29,26 @@ fi
 
 export BUILD_FILTER="ssl,curl,trans,libev"
 
-while getopts ":o:n" opt; do
-  	case $opt in
-	    o)
-	      export BUILD_FILTER="$OPTARG"
-	      ;;
-		n)
-		  export DONT_OVERWRITE="YES"
-		  ;;
-	    \?)
-	      echo "Invalid option: -$OPTARG" >&2
-	      exit 1
-	      ;;
-	    :)
-	      echo "Option -$OPTARG requires an argument." >&2
-	      exit 1
-	      ;;
-	esac
-done
-
-mkdir -p ${TEMP_DIR}
+function do_abort {
+	echo $1 >&2
+	exit 1
+}
 
 function do_export {
-	export DEVROOT="/Developer/Platforms/${PLATFORM}.platform/Developer"
-	export SDKROOT="/Developer/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}$SDK_VERSION.sdk"
-	export LD=${DEVROOT}/usr/bin/ld
-	export CPP=/usr/bin/cpp
-	export CXX="${DEVROOT}/usr/bin/g++ -arch ${ARCH}"
-	unset AR
-	unset AS
-	export NM=${DEVROOT}/usr/bin/nm
-	export CXXCPP=/usr/bin/cpp
-	export RANLIB=${DEVROOT}/usr/bin/ranlib
-	export CC="${DEVROOT}/usr/bin/gcc -arch ${ARCH}"
-	export CFLAGS="-I${BUILD_DIR}/include -I${BUILD_DIR_TRANS}/include -I${SDKROOT}/usr/include -pipe -no-cpp-precomp -isysroot ${SDKROOT}"
+	if [[ ${ARCH} != "system" ]]; then
+		export DEVROOT="/Developer/Platforms/${PLATFORM}.platform/Developer"
+		export SDKROOT="/Developer/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}$SDK_VERSION.sdk"
+		export LD=${DEVROOT}/usr/bin/ld
+		export CPP=/usr/bin/cpp
+		export CXX="${DEVROOT}/usr/bin/g++"
+		unset AR
+		unset AS
+		export NM=${DEVROOT}/usr/bin/nm
+		export CXXCPP=/usr/bin/cpp
+		export RANLIB=${DEVROOT}/usr/bin/ranlib
+	fi
+	export CC="${DEVROOT}/usr/bin/gcc"
+	export CFLAGS="-arch ${ARCH} -I${BUILD_DIR}/include -I${BUILD_DIR_TRANS}/include -I${SDKROOT}/usr/include -pipe -no-cpp-precomp -isysroot ${SDKROOT}"
 	export CXXFLAGS="${CFLAGS}"
 	export LDFLAGS=" -L${BUILD_DIR}/lib -L${BUILD_DIR_TRANS}/lib -pipe -no-cpp-precomp -L${SDKROOT}/usr/lib -L${DEVROOT}/usr/lib -isysroot ${SDKROOT} -Wl,-syslibroot $SDKROOT"
 	export COMMON_OPTIONS="--disable-shared --enable-static --disable-ipv6 --disable-manual "
@@ -204,6 +193,25 @@ function do_transmission {
 	popd
 	popd
 }
+
+while getopts ":o:n" opt; do
+  	case $opt in
+	    o)
+	      export BUILD_FILTER="$OPTARG"
+	      ;;
+		n)
+		  export DONT_OVERWRITE="YES"
+		  ;;
+	    \?)
+	      do_abort "Invalid option: -$OPTARG"
+	      ;;
+	    :)
+	      do_abort "Option -$OPTARG requires an argument."
+	      ;;
+	esac
+done
+
+mkdir -p ${TEMP_DIR}
 
 if [[ $BUILD_FILTER == *ssl* ]]; then
 	do_openssl
