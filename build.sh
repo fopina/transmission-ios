@@ -5,33 +5,34 @@
  
 . configuration
 
-export BUILD_DIR="$PWD/out/${ARCH}"
-export BUILD_DIR_TRANS="$BUILD_DIR/transmission"
 export TEMP_DIR="$PWD/temp"
 export PATCH_DIR="$PWD/patches"
-
-if [ ${ARCH} = "i386" ]
-	then
-	PLATFORM="iPhoneSimulator"
-elif [ ${ARCH} = "armv7" ]
-	then
-	PLATFORM="iPhoneOS"
-elif [ ${ARCH} = "armv6" ]
-	then
-	PLATFORM="iPhoneOS"
-elif [ ${ARCH} = "system" ]
-	then
-	PLATFORM="none"
-else
-	echo "invalid arch ${ARCH} specified"
-	exit
-fi
-
 export BUILD_FILTER="ssl,curl,trans,libev"
 
 function do_abort {
 	echo $1 >&2
 	exit 1
+}
+
+function do_loadenv {
+	export BUILD_DIR="$PWD/out/${ARCH}"
+	export BUILD_DIR_TRANS="$BUILD_DIR/transmission"
+
+	if [ ${ARCH} = "i386" ]
+		then
+		PLATFORM="iPhoneSimulator"
+	elif [ ${ARCH} = "armv7" ]
+		then
+		PLATFORM="iPhoneOS"
+	elif [ ${ARCH} = "armv6" ]
+		then
+		PLATFORM="iPhoneOS"
+	elif [ ${ARCH} = "system" ]
+		then
+		PLATFORM="none"
+	else
+		do_abort "invalid arch ${ARCH} specified"
+	fi
 }
 
 function do_export {
@@ -197,8 +198,14 @@ function do_transmission {
 	popd
 }
 
-while getopts ":o:n" opt; do
+do_loadenv
+
+while getopts ":o:a:n" opt; do
   	case $opt in
+		a)
+		  export ARCH="$OPTARG"
+		  do_loadenv
+		  ;;
 	    o)
 	      export BUILD_FILTER="$OPTARG"
 	      ;;
