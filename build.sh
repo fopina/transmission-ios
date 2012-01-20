@@ -172,10 +172,14 @@ function do_transmission {
 	
 	#apply whitelist patch (to allow LAN clients by default)
 	pushd libtransmission
-	patch < ${PATCH_DIR}/rpc_lan_whitelist.patch
+	patch -N < ${PATCH_DIR}/rpc_lan_whitelist.patch
 	popd
 	
 	do_export
+	
+	if [[ ! -z $DONT_OVERWRITE ]]; then
+		make clean
+	fi
 	
 	./configure --prefix="${BUILD_DIR_TRANS}" ${COMMON_OPTIONS} --enable-largefile --enable-utp --disable-nls --enable-lightweight --enable-cli --enable-daemon --disable-mac --disable-gtk --with-kqueue --enable-debug || do_abort "$FUNCNAME: configure failed "
 	
