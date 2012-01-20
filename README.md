@@ -25,7 +25,7 @@ install it in the device
 	cd ~mobile
 	dpkg -i transmission*.deb
 	
-It's done.  
+It's done. The post installation script has set up transmission to run on boot and started it as well, so you can go straight ahead and connect to http://apple-tv:9091/ for the transmission WebUI.  
 Personally, regarding Apple TV usage, I like to install the XBMC Transmission plugin as well.
 
 Links
