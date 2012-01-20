@@ -1,0 +1,4 @@
+#!/bin/bash
+
+chown root:wheel /Library/LaunchDaemons/cc.fopina.transmission.plist
+launchctl load /Library/LaunchDaemons/cc.fopina.transmission.plist

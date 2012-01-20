@@ -1,4 +1,4 @@
-Package: transmission
+Package: cc.fopina.transmission
 Section: network
 Priority: optional
 Architecture: iphoneos-arm
