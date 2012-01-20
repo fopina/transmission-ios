@@ -35,6 +35,7 @@ function do_abort {
 }
 
 function do_export {
+	unset CFLAGS
 	if [[ ${ARCH} != "system" ]]; then
 		export DEVROOT="/Developer/Platforms/${PLATFORM}.platform/Developer"
 		export SDKROOT="/Developer/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}$SDK_VERSION.sdk"
@@ -46,11 +47,13 @@ function do_export {
 		export NM=${DEVROOT}/usr/bin/nm
 		export CXXCPP=/usr/bin/cpp
 		export RANLIB=${DEVROOT}/usr/bin/ranlib
+		export CFLAGS="-arch ${ARCH} -isysroot ${SDKROOT}"
+		export LDFLAGS="-L${SDKROOT}/usr/lib -L${DEVROOT}/usr/lib -isysroot ${SDKROOT} -Wl,-syslibroot $SDKROOT"
 	fi
 	export CC="${DEVROOT}/usr/bin/gcc"
-	export CFLAGS="-arch ${ARCH} -I${BUILD_DIR}/include -I${BUILD_DIR_TRANS}/include -I${SDKROOT}/usr/include -pipe -no-cpp-precomp -isysroot ${SDKROOT}"
+	export CFLAGS="${CFLAGS} -I${BUILD_DIR}/include -I${BUILD_DIR_TRANS}/include -I${SDKROOT}/usr/include -pipe -no-cpp-precomp"
 	export CXXFLAGS="${CFLAGS}"
-	export LDFLAGS=" -L${BUILD_DIR}/lib -L${BUILD_DIR_TRANS}/lib -pipe -no-cpp-precomp -L${SDKROOT}/usr/lib -L${DEVROOT}/usr/lib -isysroot ${SDKROOT} -Wl,-syslibroot $SDKROOT"
+	export LDFLAGS="-L${BUILD_DIR}/lib -L${BUILD_DIR_TRANS}/lib -pipe -no-cpp-precomp ${LDFLAGS}"
 	export COMMON_OPTIONS="--disable-shared --enable-static --disable-ipv6 --disable-manual "
 	
 	if [ ${PLATFORM} = "iPhoneOS" ]
