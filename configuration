@@ -2,7 +2,7 @@
 
 #########################
 
-ARCH="system"
+ARCH="armv7"
 
 SDK_VERSION="5.0"
 PARALLEL_NUM=1
