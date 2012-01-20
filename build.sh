@@ -24,6 +24,27 @@ else
 	exit
 fi
 
+export BUILD_FILTER="ssl,curl,trans,libev"
+
+while getopts ":o:n" opt; do
+  	case $opt in
+	    o)
+	      export BUILD_FILTER="$OPTARG"
+	      ;;
+		n)
+		  export DONT_OVERWRITE="YES"
+		  ;;
+	    \?)
+	      echo "Invalid option: -$OPTARG" >&2
+	      exit 1
+	      ;;
+	    :)
+	      echo "Option -$OPTARG requires an argument." >&2
+	      exit 1
+	      ;;
+	esac
+done
+
 mkdir -p ${TEMP_DIR}
 
 function do_export {
@@ -149,8 +170,10 @@ function do_transmission {
 	  /usr/bin/curl -O -L "http://transmission.cachefly.net/${PACKAGE_NAME}.tar.bz2"
 	fi
 	
-	rm -rf "${PACKAGE_NAME}"
-	tar jxvf "${PACKAGE_NAME}.tar.bz2"
+	if [[ -z $DONT_OVERWRITE ]]; then
+		rm -rf "${PACKAGE_NAME}"
+		tar jxvf "${PACKAGE_NAME}.tar.bz2"
+	fi
 	
 	pushd ${PACKAGE_NAME}
 	
@@ -182,7 +205,15 @@ function do_transmission {
 	popd
 }
 
-do_openssl
-do_curl
-do_libevent
-do_transmission
+if [[ $BUILD_FILTER == *ssl* ]]; then
+	do_openssl
+fi
+if [[ $BUILD_FILTER == *curl* ]]; then
+	do_curl
+fi
+if [[ $BUILD_FILTER == *libev* ]]; then
+	do_libevent
+fi
+if [[ $BUILD_FILTER == *trans* ]]; then
+	do_transmission
+fi
