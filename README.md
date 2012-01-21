@@ -6,9 +6,15 @@ Usage
 -----
 
 If you want to compile transmission yourself, check sections _Compiling_ and _Installation_.  
-If you just want transmission running, you have two options:  
+If you just want transmission running, you have two faster options:  
 
 - install it through Cydia/nikoTV/apt-get as the package is online in the [BigBoss](http://apt.thebigboss.org/onepackage.php?bundleid=cc.fopina.transmission) repository.  
+
+	if you're nikoTV-less apple tv 2g, simply do:
+
+		ssh root@YOUR_APPLETV_IP
+		apt-get update
+		apt-get install cc.fopina.transmission
 
 - [Download](https://github.com/fopina/transmission-ios/downloads) the .deb file and check the _Installation_ section.  
 
