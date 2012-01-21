@@ -1,8 +1,19 @@
 transmission-os
 ==========
-This is a set of scripts to make it easier to cross-compile transmission for iOS and package it (mainly to use in Apple TV 2nd gen).
+This is a set of scripts to make it easier to cross-compile transmission for iOS and package it (mainly to use in Apple TV 2nd gen, but also works on iPod/iPhone/iPad as well).
 
 Usage
+-----
+
+If you want to compile transmission yourself, check sections _Compiling_ and _Installation_.  
+If you just want transmission running, you have two options:  
+
+- install it through Cydia/nikoTV/apt-get as the package is online in the [BigBoss](http://apt.thebigboss.org/onepackage.php?bundleid=cc.fopina.transmission) repository.  
+
+- [Download](https://github.com/fopina/transmission-ios/downloads) the .deb file and check the _Installation_ section.  
+
+
+Compiling
 -----
 
 Using the terminal (assuming you have a working installation of XCode and git):  
@@ -16,18 +27,21 @@ compile transmission and dependencies
 create the deb file
 
 	./create_deb.sh
-copy it to jailbroken AppleTV 2G (any other iOS device)
 
-	scp transmission*.deb mobile@apple-tv:
+Installation
+-----
+
+copy it to jailbroken AppleTV 2G (or any other iOS device)
+
+	scp transmission-VERSION.deb root@YOUR_DEVICE_IP
 install it in the device
 
-	ssh root@apple-tv
-	cd ~mobile
-	dpkg -i transmission*.deb
+	ssh root@YOUR_DEVICE_IP
+	dpkg -i transmission-VERSION.deb
 	
-It's done. The post installation script has set up transmission to run on boot and started it as well, so you can go straight ahead and connect to http://apple-tv:9091/ for the transmission WebUI.  
+It's done. The post installation script has set up transmission to run on boot and started it as well, so you can go straight ahead and connect to http://YOUR_DEVICE_IP:9091/ for the transmission WebUI.  
 Personally, regarding Apple TV usage, I like to install the XBMC Transmission plugin as well.
 
 Links
 -------
-http://www.transmissionbt.com/
+[Transmission](http://www.transmissionbt.com/) - A Fast, Easy and Free BitTorrent Client
