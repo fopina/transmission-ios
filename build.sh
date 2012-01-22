@@ -50,6 +50,7 @@ function do_export {
 		export RANLIB=${DEVROOT}/usr/bin/ranlib
 		export CFLAGS="-arch ${ARCH} -isysroot ${SDKROOT}"
 		export LDFLAGS="-L${SDKROOT}/usr/lib -L${DEVROOT}/usr/lib -isysroot ${SDKROOT} -Wl,-syslibroot $SDKROOT"
+		export HAVE_CXX="yes"
 	fi
 	export CC="${DEVROOT}/usr/bin/gcc"
 	export CFLAGS="${CFLAGS} -I${BUILD_DIR}/include -I${BUILD_DIR_TRANS}/include -I${SDKROOT}/usr/include -pipe -no-cpp-precomp"
@@ -187,7 +188,7 @@ function do_transmission {
 		make clean
 	fi
 	
-	./configure --prefix="${BUILD_DIR_TRANS}" ${COMMON_OPTIONS} --enable-largefile --enable-utp --disable-nls --enable-lightweight --enable-cli --enable-daemon --disable-mac --disable-gtk --with-kqueue --enable-debug || do_abort "$FUNCNAME: configure failed "
+	./configure --prefix="${BUILD_DIR_TRANS}" ${COMMON_OPTIONS} --enable-largefile --enable-utp --disable-nls --enable-lightweight --enable-cli --enable-daemon --disable-mac --disable-gtk --with-kqueue --enable-debug --with-gtk=no || do_abort "$FUNCNAME: configure failed "
 	
 	if [ ! -e "${SDKROOT}/usr/include/net/route.h" ]
 		then
