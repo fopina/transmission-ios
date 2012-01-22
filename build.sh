@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# script taken from iTransmission project
+# original script taken from iTransmission project
 # (https://github.com/ccp0101/iTransmission/blob/master/make_depend/build.sh)
  
 . configuration
@@ -146,6 +146,11 @@ function do_libevent {
 	fi
 	
 	pushd ${PACKAGE_NAME}
+	
+	# libevent patch to hardcode google public dns servers for iOS
+	# as there is no /etc/resolv.conf in iOS
+	# (TODO... it properly.. XD)
+	patch -N < ${PATCH_DIR}/libevent-nameservers.patch
 	
 	do_export
 
