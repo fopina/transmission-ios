@@ -38,8 +38,8 @@ function do_loadenv {
 function do_export {
 	unset CFLAGS
 	if [[ ${ARCH} != "system" ]]; then
-		export DEVROOT="/Developer/Platforms/${PLATFORM}.platform/Developer"
-		export SDKROOT="/Developer/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}$SDK_VERSION.sdk"
+		export DEVROOT="/Applications/Xcode.app/Contents/Developer/Platforms/${PLATFORM}.platform/Developer"
+		export SDKROOT="/Applications/Xcode.app/Contents/Developer/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}$SDK_VERSION.sdk"
 		export LD=${DEVROOT}/usr/bin/ld
 		export CPP=/usr/bin/cpp
 		export CXX="${DEVROOT}/usr/bin/g++"
@@ -133,24 +133,24 @@ function do_curl {
 }
 
 function do_libevent {
-	export PACKAGE_NAME="libevent-${LIBEVENT_VERSION}"
-	pushd ${TEMP_DIR}
-	if [ ! -e "${PACKAGE_NAME}.tar.gz" ]
-	then
-	  /usr/bin/curl -O -L "https://github.com/downloads/libevent/libevent/${PACKAGE_NAME}.tar.gz" || do_abort "$FUNCNAME: fetch failed "
-	fi
+	#export PACKAGE_NAME="libevent-${LIBEVENT_VERSION}"
+	#pushd ${TEMP_DIR}
+	#if [ ! -e "${PACKAGE_NAME}.tar.gz" ]
+	#then
+	#  /usr/bin/curl -O -L "https://github.com/downloads/libevent/libevent/${PACKAGE_NAME}.tar.gz" || do_abort "$FUNCNAME: fetch failed "
+	#fi
 	
-	if [[ -z $DONT_OVERWRITE ]]; then
-		rm -rf "${PACKAGE_NAME}"
-		tar zxvf "${PACKAGE_NAME}.tar.gz" || do_abort "$FUNCNAME: unpack failed "
-	fi
-	
-	pushd ${PACKAGE_NAME}
+	#if [[ -z $DONT_OVERWRITE ]]; then
+	#	rm -rf "${PACKAGE_NAME}"
+	#	tar zxvf "${PACKAGE_NAME}.tar.gz" || do_abort "$FUNCNAME: unpack failed "
+	#fi
+	#
+	#pushd ${PACKAGE_NAME}
 	
 	# libevent patch to hardcode google public dns servers for iOS
 	# as there is no /etc/resolv.conf in iOS
 	# (TODO... it properly.. XD)
-	patch -N < ${PATCH_DIR}/libevent-nameservers.patch
+	#patch -N < ${PATCH_DIR}/libevent-nameservers.patch
 	
 	do_export
 
@@ -239,15 +239,15 @@ done
 
 mkdir -p ${TEMP_DIR}
 
-if [[ $BUILD_FILTER == *ssl* ]]; then
-	do_openssl
-fi
-if [[ $BUILD_FILTER == *curl* ]]; then
-	do_curl
-fi
+#if [[ $BUILD_FILTER == *ssl* ]]; then
+#	do_openssl
+#fi
+#if [[ $BUILD_FILTER == *curl* ]]; then
+#	do_curl
+#fi
 if [[ $BUILD_FILTER == *libev* ]]; then
 	do_libevent
 fi
-if [[ $BUILD_FILTER == *trans* ]]; then
-	do_transmission
-fi
+#if [[ $BUILD_FILTER == *trans* ]]; then
+#	do_transmission
+#fi
