@@ -38,16 +38,16 @@ function do_loadenv {
 function do_export {
 	unset CFLAGS
 	if [[ ${ARCH} != "system" ]]; then
-		export DEVROOT="/Developer/Platforms/${PLATFORM}.platform/Developer"
-		export SDKROOT="/Developer/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}$SDK_VERSION.sdk"
+		export DEVROOT="${DEVFOLDER}/Platforms/${PLATFORM}.platform/Developer"
+		export SDKROOT="${DEVFOLDER}/Platforms/${PLATFORM}.platform/Developer/SDKs/${PLATFORM}$SDK_VERSION.sdk"
 		export LD=${DEVROOT}/usr/bin/ld
-		export CPP=/usr/bin/cpp
+		export CPP="/usr/bin/cpp"
 		export CXX="${DEVROOT}/usr/bin/g++"
 		unset AR
 		unset AS
 		export NM=${DEVROOT}/usr/bin/nm
-		export CXXCPP=/usr/bin/cpp
-		export RANLIB=${DEVROOT}/usr/bin/ranlib
+		export CXXCPP="/usr/bin/cpp"
+		export RANLIB="${DEVROOT}/usr/bin/ranlib"
 		export CFLAGS="-arch ${ARCH} -isysroot ${SDKROOT}"
 		export LDFLAGS="-L${SDKROOT}/usr/lib -L${DEVROOT}/usr/lib -isysroot ${SDKROOT} -Wl,-syslibroot $SDKROOT"
 		export HAVE_CXX="yes"
@@ -116,8 +116,10 @@ function do_curl {
 	  /usr/bin/curl -O -L "http://www.execve.net/curl/${PACKAGE_NAME}.tar.gz" || do_abort "$FUNCNAME: fetch failed "
 	fi
 	
-	rm -rf "${PACKAGE_NAME}"
-	tar zxvf "${PACKAGE_NAME}.tar.gz" || do_abort "$FUNCNAME: unpack failed "
+	if [[ -z $DONT_OVERWRITE ]]; then
+		rm -rf "${PACKAGE_NAME}"
+		tar zxvf "${PACKAGE_NAME}.tar.gz" || do_abort "$FUNCNAME: unpack failed "
+	fi
 	
 	pushd ${PACKAGE_NAME}
 	
@@ -172,7 +174,7 @@ function do_transmission {
 	pushd ${TEMP_DIR}
 	if [ ! -e "${PACKAGE_NAME}.tar.bz2" ]
 	then
-	  /usr/bin/curl -O -L "http://transmission.cachefly.net/${PACKAGE_NAME}.tar.bz2" || do_abort "$FUNCNAME: fetch failed "
+	  /usr/bin/curl -O -L "http://download.transmissionbt.com/files/${PACKAGE_NAME}.tar.bz2" || do_abort "$FUNCNAME: fetch failed "
 	fi
 	
 	if [[ -z $DONT_OVERWRITE ]]; then
@@ -198,7 +200,7 @@ function do_transmission {
 	if [ ! -e "${SDKROOT}/usr/include/net/route.h" ]
 		then
 		mkdir -p ${BUILD_DIR_TRANS}/include/net
-		cp "/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator${SDK_VERSION}.sdk/usr/include/net/route.h" "${BUILD_DIR_TRANS}/include/net/route.h"
+		cp "${DEVFOLDER}/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator${SDK_VERSION}.sdk/usr/include/net/route.h" "${BUILD_DIR_TRANS}/include/net/route.h"
 	fi
 	
 	make -j ${PARALLEL_NUM} || do_abort "$FUNCNAME: make failed "

@@ -4,7 +4,8 @@
 
 ARCH="armv7"
 
-SDK_VERSION="5.0"
+DEVFOLDER="/Applications/Xcode.app/Contents/Developer"
+SDK_VERSION="5.1"
 PARALLEL_NUM=1
 
 CURL_VERSION=7.21.5
