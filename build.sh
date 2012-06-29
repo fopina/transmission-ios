@@ -218,7 +218,7 @@ function do_transmission {
 
 do_loadenv
 
-while getopts ":o:a:n" opt; do
+while getopts ":o:a:ne" opt; do
   	case $opt in
 		a)
 		  export ARCH="$OPTARG"
@@ -229,6 +229,10 @@ while getopts ":o:a:n" opt; do
 	      ;;
 		n)
 		  export DONT_OVERWRITE="YES"
+		  ;;
+		e)
+		  export BUILD_FILTER=""
+		  do_export
 		  ;;
 	    \?)
 	      do_abort "Invalid option: -$OPTARG"
